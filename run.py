@@ -258,22 +258,23 @@ def readfromdb():
             return redirect(flask.url_for('writetodb'), code=307)
 
     
-   if p==4:
+    if p==4:
         cur = mysql.connection.cursor()
-        cur.execute("SELECT *  FROM rides where source1='%s' AND destination1='%s'", (a,b))
-        row1= cur.fetchall()
+        cur.execute("SELECT *  FROM rides where source1=%s AND destination1=%s",(int(a),int(b)))
+        #datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S') 
+        row1 = cur.fetchall()
+        res=[]
+	if(row1==None):return 204
+        for row in row1:
+            if  1: # row[1]datetime.datetime.now().strftime('%d-%b-%Y:%S-%M-%H'):
+                resp={
+                    "rideId":row[4],
+                    "username": row[0],
+                    "timestamp": row[1]
+                }
+                res.append(resp)
         #print(row)
-	res=[]
-	for row in row1:
-		if row[1]>datetime.strftime(str(date), "%d-%b-%Y:%S-%M-%H"):
-			resp={
-				"rideid": row[4],
-				"username": row[0],
-				"timestamp": row[1]
-				}
-			res.append(resp)
-	return jsonify(res),200
-        return "lol"
+        return jsonify(res),200
         
 
 
@@ -282,9 +283,9 @@ def readfromdb():
         j=argnum
         cur.execute("SELECT *  FROM rides where rideid='"+j+"'")
         row = cur.fetchone()
-	#return jsonify(row)
+        #return jsonify(row)
         if(row==None):
-            return "Ride doesn't exist!", 204
+            return 204
         cur.execute("SELECT userz  FROM ride_users where rideid='"+j+"'")
         res=[]
         for row1 in cur:
@@ -293,18 +294,18 @@ def readfromdb():
         #    res.append(x)
 
         resp={
-            "rideid": row[4],
+            "rideId": row[4],
             "created_by": row[0],
             "timestamp": row[1],
             "source": row[2],
             "destination": row[3],
             "users": res
         }
-       # result.append(resp)
+        result.append(resp)
         cur.close()
-        print(resp)
-        #return jsonify(result),200
-	return jsonify(resp), 200
+        #print(resp)----------------
+        #return resp, 200
+        return jsonify(resp),200
 
     if p==6:
         cur = mysql.connection.cursor()
