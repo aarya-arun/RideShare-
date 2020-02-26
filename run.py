@@ -258,22 +258,22 @@ def readfromdb():
             return redirect(flask.url_for('writetodb'), code=307)
 
     
-    if p==4:
+   if p==4:
         cur = mysql.connection.cursor()
-        cur.execute("SELECT *  FROM rides where source1=%d AND destination1=%d", (request.args.get('source'),request.args.get('destination')))
-        #datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S') 
-        row1 = cur.fetchall()
-        res=[]
-        for row in row1:
-            if row[1]>datetime.strftime(str(date), '%d-%b-%Y:%S-%M-%H'):
-                resp={
-                    "rideid":row[4],
-                    "usernane": row[0],
-                    "timestamp": row[1]
-                }
-                res.append(resp)
+        cur.execute("SELECT *  FROM rides where source1='%s' AND destination1='%s'", (a,b))
+        row1= cur.fetchall()
         #print(row)
-        return jsonify(res),200
+	res=[]
+	for row in row1:
+		if row[1]>datetime.strftime(str(date), "%d-%b-%Y:%S-%M-%H"):
+			resp={
+				"rideid": row[4],
+				"username": row[0],
+				"timestamp": row[1]
+				}
+			res.append(resp)
+	return jsonify(res),200
+        return "lol"
         
 
 
@@ -282,9 +282,9 @@ def readfromdb():
         j=argnum
         cur.execute("SELECT *  FROM rides where rideid='"+j+"'")
         row = cur.fetchone()
-        #return jsonify(row)
+	#return jsonify(row)
         if(row==None):
-            return 204
+            return "Ride doesn't exist!", 204
         cur.execute("SELECT userz  FROM ride_users where rideid='"+j+"'")
         res=[]
         for row1 in cur:
@@ -300,11 +300,11 @@ def readfromdb():
             "destination": row[3],
             "users": res
         }
-        result.append(resp)
+       # result.append(resp)
         cur.close()
         print(resp)
-        #return resp, 200
-        return jsonify(resp),200
+        #return jsonify(result),200
+	return jsonify(resp), 200
 
     if p==6:
         cur = mysql.connection.cursor()
