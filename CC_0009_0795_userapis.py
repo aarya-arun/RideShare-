@@ -139,7 +139,7 @@ def readfromdb():
 
     
     if p==11:
-        cur.execute("DELETE FROM rides")
+        cur.execute("DELETE FROM users")
         mysql.connection.commit()
         cur.close()
         g={}
