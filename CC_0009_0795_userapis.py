@@ -66,6 +66,14 @@ def api_listall():
     return redirect(flask.url_for('readfromdb'), code=307)
 
 
+# CLEAR DB, API=11
+@app.route('/api/v1/db/clear', methods=['POST'])
+def api_cleardb():
+    global p
+    p=11
+    return redirect(flask.url_for('writetodb'), code=307)
+
+
 #WRITE TO A DB, API=8
 
 @app.route('/api/v1/db/write', methods=['POST', 'PUT', 'DELETE', 'GET'])
@@ -128,6 +136,14 @@ def readfromdb():
             res.append(row1[0])
 
         return jsonify(res),200
+
+    
+    if p==11:
+        cur.execute("DELETE FROM rides")
+        mysql.connection.commit()
+        cur.close()
+        g={}
+        return jsonify(g), 200
 
     
 
