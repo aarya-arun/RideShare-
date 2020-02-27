@@ -119,7 +119,7 @@ def writetodb():
         timestamp=request.json.get('timestamp')
         source=request.json.get('source')
         destination=request.json.get('destination')
-        global rideidstart
+        
         cur.execute("SELECT rideidstart from rides_id")
         rideid=cur.fetchone()
         cur = mysql.connection.cursor()
