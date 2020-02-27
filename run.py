@@ -95,9 +95,10 @@ def api_sourceanddest():
     global p
     p=4
     global a
-    a=int(request.args.get('source'))
+    a=request.args.get('source')
     global b
-    b=int(request.args.get('destination'))
+    b=request.args.get('destination')
+    print(type(a))
     return redirect(flask.url_for('readfromdb'), code=307)
 
     
@@ -149,7 +150,15 @@ def api_delride(rideid):
     argg=rideid
     return redirect(flask.url_for('readfromdb'), code=307)
 
-
+# LIST ALL USERS, API=10
+@app.route('/api/v1/users', methods=['GET'])
+def api_listall():
+    if flask.request.method == 'POST':
+        return "Method not allowed!", 405 
+    
+    global p
+    p=10
+    return redirect(flask.url_for('readfromdb'), code=307)
 
 
 
@@ -264,9 +273,8 @@ def readfromdb():
         #datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S') 
         row1 = cur.fetchall()
         res=[]
-	if(row1==None):return 204
         for row in row1:
-            if  1: # row[1]datetime.datetime.now().strftime('%d-%b-%Y:%S-%M-%H'):
+            if  row[1]>datetime.datetime.now().strftime('%d-%b-%Y:%S-%M-%H'):
                 resp={
                     "rideId":row[4],
                     "username": row[0],
@@ -327,18 +335,27 @@ def readfromdb():
 
         return redirect(flask.url_for('writetodb'), code=307)
 
-
     if p==7:
         cur = mysql.connection.cursor()
         j=argg
-        print(j)
+        #print(j)
         cur.execute("SELECT *  FROM rides where rideid='"+j+"'")
         row = cur.fetchone()
-        print(row)
+        #print(row)
         if(row==None):
             return "This ride doesn't exist. Can't delete.",400
         else:
             return redirect(flask.url_for('writetodb'), code=307)
-        
-    
+
+    if p==10:
+        cur=mysql.connection.cursor()
+        cur.execute("SELECT username FROM users")
+        res=[]
+        if(cur==None):return 204
+        for row1 in cur:
+            res.append(row1[0])
+
+        return jsonify(res),200
+
+            
 app.run(host='0.0.0.0', port=80)
