@@ -99,7 +99,12 @@ def api_delride(rideid):
     argg=rideid
     return redirect(flask.url_for('readfromdb'), code=307)
 
-
+# CLEAR DB, API=11
+@app.route('/api/v1/db/clear', methods=['POST'])
+def api_cleardb():
+    global p
+    p=11
+    return redirect(flask.url_for('writetodb'), code=307)
 
 
 
@@ -115,11 +120,12 @@ def writetodb():
         source=request.json.get('source')
         destination=request.json.get('destination')
         global rideidstart
-        rideidstart+=1
-        rideid=rideidstart
+        cur.execute("SELECT rideidstart from rides_id")
+        rideid=cur.fetchone()
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO rides(created_by, timestamp1, source1, destination1, rideid) VALUES (%s, %s, %s, %s, %s)", (created_by, timestamp, source, destination, rideid))
+        cur.execute("INSERT INTO rides(created_by, timestamp1, source1, destination1, rideid) VALUES (%s, %s, %s, %s, %s)", (created_by, timestamp, source, destination, rideid+1))
         cur.execute("INSERT INTO ride_users(rideid,userz) VALUES (%s, %s)", (rideid,created_by))
+        cur.execute("INSERT INTO rides_id(rideidstart) VALUES (%s)", (rideid+1))
         mysql.connection.commit()
         cur.close()
         return jsonify(results), 201
@@ -142,14 +148,12 @@ def writetodb():
         cur.close()
         return jsonify(results), 200
 
-
-
-
-
-
-
-
-
+    if p==11:
+        cur.execute("DELETE FROM rides")
+        mysql.connection.commit()
+        cur.close()
+        g={}
+        return jsonify(g), 200
 
 
 
