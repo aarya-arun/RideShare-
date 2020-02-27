@@ -130,7 +130,7 @@ def writetodb():
         cur.close()
         return jsonify(results), 201
         
-    
+     
     if p==6:
         cur = mysql.connection.cursor()
         j=argnum
