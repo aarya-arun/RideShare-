@@ -1,10 +1,10 @@
 CREATE TABLE rides(
 
   created_by varchar(30),
-  timestamp varchar(40),
-  source int,
-  destination int,
-  rideId varchar(40)
+  timestamp1 varchar(40),
+  source1 int,
+  destination1 int,
+  rideid varchar(40)
   
   );
   
