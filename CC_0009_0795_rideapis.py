@@ -125,7 +125,7 @@ def writetodb():
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO rides(created_by, timestamp1, source1, destination1, rideid) VALUES (%s, %s, %s, %s, %s)", (created_by, timestamp, source, destination, rideid+1))
         cur.execute("INSERT INTO ride_users(rideid,userz) VALUES (%s, %s)", (rideid,created_by))
-        cur.execute("INSERT INTO rides_id(rideidstart) VALUES (%s)", (rideid+1))
+        cur.execute("UPDATE rides_id SET rideidstart=(%s) WHERE rideidstart=(%s)", (rideid+1, ridestart))
         mysql.connection.commit()
         cur.close()
         return jsonify(results), 201
