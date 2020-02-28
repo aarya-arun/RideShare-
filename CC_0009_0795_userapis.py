@@ -84,6 +84,7 @@ def api_cleardb():
 
 
 
+
 #WRITE TO A DB, API=8
 
 @app.route('/api/v1/db/write', methods=['POST', 'PUT', 'DELETE', 'GET'])
@@ -97,7 +98,7 @@ def writetodb():
         cur.execute("INSERT INTO users(username, password) VALUES (%s, %s)", (username, password))
         mysql.connection.commit()
         cur.close()
-        results=[]
+        results={}
         return jsonify(results), 201
         
     if p==2:
@@ -106,6 +107,7 @@ def writetodb():
         cur.execute("DELETE FROM users WHERE username='"+j+"'" )
         mysql.connection.commit()
         cur.close()
+        results={}
         return jsonify(results), 200
 
     if p==11:
@@ -114,6 +116,7 @@ def writetodb():
         cur.execute("DELETE FROM users")
         mysql.connection.commit()
         cur.close()
+        results={}
         return jsonify(results), 200
   
 
