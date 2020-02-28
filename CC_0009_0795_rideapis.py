@@ -119,13 +119,14 @@ def writetodb():
         timestamp=request.json.get('timestamp')
         source=request.json.get('source')
         destination=request.json.get('destination')
-        
-        cur.execute("SELECT rideidstart from rides_id")
-        rideid=cur.fetchone()
+        cur=mysql.connection.cursor()
+        cur.execute("SELECT ridestart from rides_id")
+        rideidstart=cur.fetchone()
+        #rideidstart=rideids[0][0]
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO rides(created_by, timestamp1, source1, destination1, rideid) VALUES (%s, %s, %s, %s, %s)", (created_by, timestamp, source, destination, rideid+1))
-        cur.execute("INSERT INTO ride_users(rideid,userz) VALUES (%s, %s)", (rideid,created_by))
-        cur.execute("INSERT INTO rides_id(rideidstart) VALUES (%s)", (rideid+1))
+        cur.execute("INSERT INTO rides(created_by, timestamp1, source1, destination1, rideid) VALUES (%s, %s, %s, %s, %s)", (created_by, timestamp, source, destination, str(int(rideidstart[0])+1)))
+        cur.execute("INSERT INTO ride_users(rideid,userz) VALUES (%s, %s)", (str(int(rideidstart[0])+1),created_by))
+        cur.execute("UPDATE rides_id SET ridestart=(%s) WHERE ridestart=(%s)", (str(int(rideidstart[0])+1), rideidstart[0]))
         mysql.connection.commit()
         cur.close()
         return jsonify(results), 201
@@ -179,7 +180,8 @@ def readfromdb():
         row1 = cur.fetchall()
         res=[]
         for row in row1:
-            if  row[1]>=datetime.datetime.now().strftime('%d-%b-%Y:%S-%M-%H'):
+            checkdate=datetime.strptime(row[1], "%m/%d/%Y, %H:%M:%S")
+            if  checkdate>=datetime.now(): #row[1]>=datetime.datetime.now().strftime('%d-%b-%Y:%S-%M-%H'):
                 resp={
                     "rideId":row[4],
                     "username": row[0],

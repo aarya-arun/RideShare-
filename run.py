@@ -335,7 +335,6 @@ def readfromdb():
 
         return redirect(flask.url_for('writetodb'), code=307)
 
-
     if p==7:
         cur = mysql.connection.cursor()
         j=argg
