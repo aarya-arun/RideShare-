@@ -294,7 +294,7 @@ def readfromdb():
         #return jsonify(row)
         if(row==None):
             return 204
-        cur.execute("SELECT userz  FROM ride_users where rideid='"+j+"'")
+        cur.execute("SELECT userz FROM ride_users where rideid='"+j+"'")
         res=[]
         for row1 in cur:
             res.append(row1[0])
@@ -310,7 +310,7 @@ def readfromdb():
             "users": res
         }
         result.append(resp)
-        cur.close()
+        #cur.close()
         #print(resp)----------------
         #return resp, 200
         return jsonify(resp),200
