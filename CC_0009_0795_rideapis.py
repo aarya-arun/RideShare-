@@ -28,7 +28,8 @@ argnum=0
 # ADD A NEW RIDE, API=3
 @app.route('/api/v1/rides', methods=['POST'])
 def api_addnewride():
-   
+    
+    #write api
     global p
     p=3
     return redirect(flask.url_for('readfromdb'), code=307)
@@ -52,13 +53,10 @@ def api_sourceanddest():
     a=request.args.get('source')
     global b
     b=request.args.get('destination')
-    print(type(a))
     return redirect(flask.url_for('readfromdb'), code=307)
 
-    
 
-
-# LIST ALL DETAILS OF A GIVEN RIDE API=5
+ #LIST ALL DETAILS OF A GIVEN RIDE API=5
 @app.route('/api/v1/rides/<id>', methods=['GET'])
 def api_id(id):
     if flask.request.method == 'POST':
@@ -68,8 +66,9 @@ def api_id(id):
     p=5
     global argnum
     argnum=id
-    print(type(argnum))
+    
     return redirect(flask.url_for('readfromdb'), code=307)
+
 
 
 
@@ -87,8 +86,10 @@ def api_joinride(rideid):
 
 
 
+
+
 # DELETE A RIDE, API=7
-@app.route('/api/v1/rides/<rideid>', methods=['DELETE', 'POST'])
+@app.route('/api/v1/rides/<rideid>', methods=['DELETE'])
 def api_delride(rideid):
     if flask.request.method == 'POST':
         return "Method not allowed!", 405 
@@ -99,12 +100,19 @@ def api_delride(rideid):
     argg=rideid
     return redirect(flask.url_for('readfromdb'), code=307)
 
-# CLEAR DB, API=11
-@app.route('/api/v1/db/clear', methods=['POST'])
-def api_cleardb():
+# LIST ALL USERS, API=10
+@app.route('/api/v1/users', methods=['GET'])
+def api_listall():
+    if flask.request.method == 'POST':
+        return "Method not allowed!", 405 
+    
     global p
-    p=11
-    return redirect(flask.url_for('writetodb'), code=307)
+    p=10
+    return redirect(flask.url_for('readfromdb'), code=307)
+
+
+
+
 
 
 
@@ -131,7 +139,7 @@ def writetodb():
         cur.close()
         return jsonify(results), 201
         
-     
+    
     if p==6:
         cur = mysql.connection.cursor()
         j=argnum
@@ -163,6 +171,7 @@ def writetodb():
 def readfromdb():
     result=[]
     if p==3:
+        
         cur = mysql.connection.cursor()
         cur.execute("SELECT *  FROM users where username='"+request.json.get('created_by')+"'")
         row = cur.fetchone()
@@ -174,6 +183,7 @@ def readfromdb():
 
     
     if p==4:
+        
         cur = mysql.connection.cursor()
         cur.execute("SELECT *  FROM rides where source1=%s AND destination1=%s",(int(a),int(b)))
         #datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S') 
@@ -188,20 +198,21 @@ def readfromdb():
                     "timestamp": row[1]
                 }
                 res.append(resp)
-        #print(row)
+        
         return jsonify(res),200
         
 
 
     if p==5:
+        
         cur = mysql.connection.cursor()
         j=argnum
         cur.execute("SELECT *  FROM rides where rideid='"+j+"'")
         row = cur.fetchone()
-        #return jsonify(row)
+       # return jsonify(row)
         if(row==None):
-            return 204
-        cur.execute("SELECT userz  FROM ride_users where rideid='"+j+"'")
+            return "This ride doesn't exist",204
+        cur.execute("SELECT userz FROM ride_users where rideid="+j)
         res=[]
         for row1 in cur:
             res.append(row1[0])
@@ -216,13 +227,13 @@ def readfromdb():
             "destination": row[3],
             "users": res
         }
-        result.append(resp)
-        cur.close()
-        #print(resp)----------------
-        #return resp, 200
+        
         return jsonify(resp),200
 
+
+
     if p==6:
+        
         cur = mysql.connection.cursor()
         j=argnum
         cur.execute("SELECT *  FROM rides where rideid='"+j+"'")
@@ -243,17 +254,21 @@ def readfromdb():
         return redirect(flask.url_for('writetodb'), code=307)
 
 
+
+
     if p==7:
+        
         cur = mysql.connection.cursor()
         j=argg
-        #print(j)
+       
         cur.execute("SELECT *  FROM rides where rideid='"+j+"'")
         row = cur.fetchone()
-        #print(row)
+        
         if(row==None):
             return "This ride doesn't exist. Can't delete.",400
         else:
             return redirect(flask.url_for('writetodb'), code=307)
-            
+
+
             
 app.run(host='0.0.0.0', port=80)
