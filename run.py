@@ -15,28 +15,16 @@ mysql = MySQL(app)
 
 app.config["DEBUG"] = True
 
-# Create some test data for our catalog in the form of a list of dictionaries.
 
-
-rideidstart=10000
+#golbs
 p=0
 argg="LOL"
 argnum=0
 
 
 
-@app.route('/api/v1/users/all', methods=['GET'])
-def api_allusers():
-    return jsonify(users)
-
-@app.route('/api/v1/rides/all', methods=['GET'])
-def api_allrides():
-    return jsonify(rides)
-
-
-
 # ADD A NEW USER, API=1
-@app.route('/api/v1/users', methods=['PUT', 'POST'])
+@app.route('/api/v1/users', methods=['PUT'])
 def api_addnewuser():
     if flask.request.method == 'POST':
         return "Method not allowed!",405
@@ -48,7 +36,7 @@ def api_addnewuser():
         if(letter not in {'a','b','c','d','e','f','A','B','C','D','E','F','0','1','2','3','4','5','6','7','8','9'}):
             return "Bad password! Please enter a new one.",400
     
-    
+    #Write api 
     global p
     p=1
     return redirect(flask.url_for('readfromdb'), code=307)
@@ -56,16 +44,21 @@ def api_addnewuser():
 
 
 
+
+
+
 # DELETE A USER, API=2
-@app.route('/api/v1/users/<usn>', methods=['DELETE', 'POST'])
+@app.route('/api/v1/users/<usn>', methods=['DELETE'])
 def api_deluser(usn):
     if flask.request.method == 'POST':
         return "Method not allowed!",405
+    
+    
+    #write api
     global p
     p=2
     global argg
     argg=usn
-    print(type(argg))
     return redirect(flask.url_for('readfromdb'), code=307)
 
 
@@ -74,7 +67,8 @@ def api_deluser(usn):
 # ADD A NEW RIDE, API=3
 @app.route('/api/v1/rides', methods=['POST'])
 def api_addnewride():
-   
+    
+    #write api
     global p
     p=3
     return redirect(flask.url_for('readfromdb'), code=307)
@@ -98,7 +92,6 @@ def api_sourceanddest():
     a=request.args.get('source')
     global b
     b=request.args.get('destination')
-    print(type(a))
     return redirect(flask.url_for('readfromdb'), code=307)
 
     
@@ -106,7 +99,7 @@ def api_sourceanddest():
 
 
 
-# LIST ALL DETAILS OF A GIVEN RIDE API=5
+#LIST ALL DETAILS OF A GIVEN RIDE API=5
 @app.route('/api/v1/rides/<id>', methods=['GET'])
 def api_id(id):
     if flask.request.method == 'POST':
@@ -116,7 +109,7 @@ def api_id(id):
     p=5
     global argnum
     argnum=id
-    print(type(argnum))
+    
     return redirect(flask.url_for('readfromdb'), code=307)
 
 
@@ -139,7 +132,7 @@ def api_joinride(rideid):
 
 
 # DELETE A RIDE, API=7
-@app.route('/api/v1/rides/<rideid>', methods=['DELETE', 'POST'])
+@app.route('/api/v1/rides/<rideid>', methods=['DELETE'])
 def api_delride(rideid):
     if flask.request.method == 'POST':
         return "Method not allowed!", 405 
@@ -162,6 +155,18 @@ def api_listall():
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+#database APIs
 
 
 #WRITE TO A DB, API=8
@@ -187,17 +192,21 @@ def writetodb():
         mysql.connection.commit()
         cur.close()
         return jsonify(results), 200
+
+
     if p==3:
         created_by= request.json.get('created_by')
         timestamp=request.json.get('timestamp')
         source=request.json.get('source')
         destination=request.json.get('destination')
-        global rideidstart
-        rideidstart+=1
-        rideid=rideidstart
+        cur=mysql.connection.cursor()
+        cur.execute("SELECT ridestart from rides_id")
+        rideidstart=cur.fetchone()
+        #rideidstart=rideids[0][0]
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO rides(created_by, timestamp1, source1, destination1, rideid) VALUES (%s, %s, %s, %s, %s)", (created_by, timestamp, source, destination, rideid))
-        cur.execute("INSERT INTO ride_users(rideid,userz) VALUES (%s, %s)", (rideid,created_by))
+        cur.execute("INSERT INTO rides(created_by, timestamp1, source1, destination1, rideid) VALUES (%s, %s, %s, %s, %s)", (created_by, timestamp, source, destination, str(int(rideidstart[0])+1)))
+        cur.execute("INSERT INTO ride_users(rideid,userz) VALUES (%s, %s)", (str(int(rideidstart[0])+1),created_by))
+        cur.execute("UPDATE rides_id SET ridestart=(%s) WHERE ridestart=(%s)", (str(int(rideidstart[0])+1), rideidstart[0]))
         mysql.connection.commit()
         cur.close()
         return jsonify(results), 201
@@ -235,7 +244,10 @@ def writetodb():
 @app.route('/api/v1/db/read', methods=['POST', 'PUT', 'DELETE', 'GET'])
 def readfromdb():
     result=[]
+
+
     if p==1:
+        
         cur = mysql.connection.cursor()
         cur.execute("SELECT *  FROM users where username='"+request.json.get('username')+"'")
         row = cur.fetchone()
@@ -245,7 +257,11 @@ def readfromdb():
         else:
             return redirect(flask.url_for('writetodb'), code=307)
 
+
+
+
     if p==2:
+        
         cur = mysql.connection.cursor()
         j=argg
         cur.execute("SELECT *  FROM users where username='"+j+"'")
@@ -255,8 +271,13 @@ def readfromdb():
         
         else:
             return redirect(flask.url_for('writetodb'), code=307)
+            
+
+
+
     
     if p==3:
+        
         cur = mysql.connection.cursor()
         cur.execute("SELECT *  FROM users where username='"+request.json.get('created_by')+"'")
         row = cur.fetchone()
@@ -268,33 +289,35 @@ def readfromdb():
 
     
     if p==4:
+        
         cur = mysql.connection.cursor()
         cur.execute("SELECT *  FROM rides where source1=%s AND destination1=%s",(int(a),int(b)))
         #datetime.strptime(str(date), '%Y-%m-%d %H:%M:%S') 
         row1 = cur.fetchall()
         res=[]
         for row in row1:
-            if  row[1]>datetime.datetime.now().strftime('%d-%b-%Y:%S-%M-%H'):
-                resp={
-                    "rideId":row[4],
-                    "username": row[0],
-                    "timestamp": row[1]
-                }
-                res.append(resp)
-        #print(row)
+            resp={
+                "rideId":row[4],
+                "username": row[0],
+                "timestamp": row[1]
+            }
+            res.append(resp)
+        
         return jsonify(res),200
         
 
 
     if p==5:
+        
         cur = mysql.connection.cursor()
         j=argnum
         cur.execute("SELECT *  FROM rides where rideid='"+j+"'")
         row = cur.fetchone()
-        #return jsonify(row)
+       # return jsonify(row)
         if(row==None):
-            return 204
-        cur.execute("SELECT userz FROM ride_users where rideid='"+j+"'")
+            return "This ride doesn't exist",204
+        cur.execute("SELECT userz FROM ride_users where rideid="+j)
+
         res=[]
         for row1 in cur:
             res.append(row1[0])
@@ -309,13 +332,13 @@ def readfromdb():
             "destination": row[3],
             "users": res
         }
-        result.append(resp)
-        #cur.close()
-        #print(resp)----------------
-        #return resp, 200
+
         return jsonify(resp),200
 
+
+
     if p==6:
+        
         cur = mysql.connection.cursor()
         j=argnum
         cur.execute("SELECT *  FROM rides where rideid='"+j+"'")
@@ -335,19 +358,26 @@ def readfromdb():
 
         return redirect(flask.url_for('writetodb'), code=307)
 
+
+
+
     if p==7:
+        
         cur = mysql.connection.cursor()
         j=argg
-        #print(j)
+       
         cur.execute("SELECT *  FROM rides where rideid='"+j+"'")
         row = cur.fetchone()
-        #print(row)
+        
         if(row==None):
             return "This ride doesn't exist. Can't delete.",400
         else:
             return redirect(flask.url_for('writetodb'), code=307)
 
+
+
     if p==10:
+        
         cur=mysql.connection.cursor()
         cur.execute("SELECT username FROM users")
         res=[]
@@ -356,6 +386,13 @@ def readfromdb():
             res.append(row1[0])
 
         return jsonify(res),200
+
+
+
+
+
+
+
 
             
 app.run(host='0.0.0.0', port=80)
