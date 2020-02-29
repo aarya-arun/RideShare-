@@ -189,6 +189,7 @@ def writetodb():
         cur = mysql.connection.cursor()
         j=argg
         cur.execute("DELETE FROM users WHERE username='"+j+"'" )
+        cur.execute("DELETE FROM rides WHERE created_by='"+j+"'")
         mysql.connection.commit()
         cur.close()
         results={}
