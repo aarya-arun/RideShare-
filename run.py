@@ -175,7 +175,7 @@ def api_listall():
 def writetodb():
     results=[]
     global p
-     if p==1:
+    if p==1:
         username = request.json.get('username')
         password = request.json.get('password')
         cur = mysql.connection.cursor()
