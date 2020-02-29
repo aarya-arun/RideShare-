@@ -175,14 +175,14 @@ def api_listall():
 def writetodb():
     results=[]
     global p
-    if p==1:
+     if p==1:
         username = request.json.get('username')
         password = request.json.get('password')
         cur = mysql.connection.cursor()
         cur.execute("INSERT INTO users(username, password) VALUES (%s, %s)", (username, password))
         mysql.connection.commit()
         cur.close()
-        results=[]
+        results={}
         return jsonify(results), 201
         
     if p==2:
@@ -191,6 +191,7 @@ def writetodb():
         cur.execute("DELETE FROM users WHERE username='"+j+"'" )
         mysql.connection.commit()
         cur.close()
+        results={}
         return jsonify(results), 200
 
 
@@ -209,6 +210,7 @@ def writetodb():
         cur.execute("UPDATE rides_id SET ridestart=(%s) WHERE ridestart=(%s)", (str(int(rideidstart[0])+1), rideidstart[0]))
         mysql.connection.commit()
         cur.close()
+        results={}
         return jsonify(results), 201
         
     
@@ -218,6 +220,7 @@ def writetodb():
         cur.execute("INSERT INTO ride_users(rideid,userz) VALUES (%s, %s)",(j,request.json.get('username')))
         mysql.connection.commit()
         cur.close()
+        results={}
         return jsonify(results), 200
         
 
@@ -227,8 +230,10 @@ def writetodb():
         cur.execute("DELETE FROM rides WHERE rideid='"+j+"'" )
         mysql.connection.commit()
         cur.close()
+        results={}
         return jsonify(results), 200
 
+    
 
 
 
@@ -247,7 +252,6 @@ def readfromdb():
 
 
     if p==1:
-        
         cur = mysql.connection.cursor()
         cur.execute("SELECT *  FROM users where username='"+request.json.get('username')+"'")
         row = cur.fetchone()
@@ -257,11 +261,7 @@ def readfromdb():
         else:
             return redirect(flask.url_for('writetodb'), code=307)
 
-
-
-
     if p==2:
-        
         cur = mysql.connection.cursor()
         j=argg
         cur.execute("SELECT *  FROM users where username='"+j+"'")
@@ -271,8 +271,7 @@ def readfromdb():
         
         else:
             return redirect(flask.url_for('writetodb'), code=307)
-            
-
+    
 
 
     
@@ -296,6 +295,8 @@ def readfromdb():
         row1 = cur.fetchall()
         res=[]
         for row in row1:
+            #checkdate=datetime.strptime(row[1], "%m/%d/%Y, %H:%M:%S")
+            
             resp={
                 "rideId":row[4],
                 "username": row[0],
@@ -317,7 +318,6 @@ def readfromdb():
         if(row==None):
             return "This ride doesn't exist",204
         cur.execute("SELECT userz FROM ride_users where rideid="+j)
-
         res=[]
         for row1 in cur:
             res.append(row1[0])
@@ -332,7 +332,7 @@ def readfromdb():
             "destination": row[3],
             "users": res
         }
-
+        
         return jsonify(resp),200
 
 
@@ -373,22 +373,6 @@ def readfromdb():
             return "This ride doesn't exist. Can't delete.",400
         else:
             return redirect(flask.url_for('writetodb'), code=307)
-
-
-
-    if p==10:
-        
-        cur=mysql.connection.cursor()
-        cur.execute("SELECT username FROM users")
-        res=[]
-        if(cur==None):return 204
-        for row1 in cur:
-            res.append(row1[0])
-
-        return jsonify(res),200
-
-
-
 
 
 
