@@ -24,7 +24,7 @@ argnum=0
 
 
 # ADD A NEW USER, API=1
-@app.route('/api/v1/users', methods=['PUT', 'POST'])
+@app.route('/api/v1/users', methods=['PUT'])
 def api_addnewuser():
     if flask.request.method == 'POST':
         return "Method not allowed!",405
@@ -36,7 +36,7 @@ def api_addnewuser():
         if(letter not in {'a','b','c','d','e','f','A','B','C','D','E','F','0','1','2','3','4','5','6','7','8','9'}):
             return "Bad password! Please enter a new one.",400
     
-    
+    #Write api 
     global p
     p=1
     return redirect(flask.url_for('readfromdb'), code=307)
@@ -44,17 +44,24 @@ def api_addnewuser():
 
 
 
+
+
+
 # DELETE A USER, API=2
-@app.route('/api/v1/users/<usn>', methods=['DELETE', 'POST'])
+@app.route('/api/v1/users/<usn>', methods=['DELETE'])
 def api_deluser(usn):
     if flask.request.method == 'POST':
         return "Method not allowed!",405
+    
+    
+    #write api
     global p
     p=2
     global argg
     argg=usn
-    print(type(argg))
     return redirect(flask.url_for('readfromdb'), code=307)
+
+
 
 
 # LIST ALL USERS, API=10
@@ -74,6 +81,10 @@ def api_cleardb():
     return redirect(flask.url_for('writetodb'), code=307)
 
 
+
+
+
+
 #WRITE TO A DB, API=8
 
 @app.route('/api/v1/db/write', methods=['POST', 'PUT', 'DELETE', 'GET'])
@@ -87,7 +98,7 @@ def writetodb():
         cur.execute("INSERT INTO users(username, password) VALUES (%s, %s)", (username, password))
         mysql.connection.commit()
         cur.close()
-        results=[]
+        results={}
         return jsonify(results), 201
         
     if p==2:
@@ -96,6 +107,16 @@ def writetodb():
         cur.execute("DELETE FROM users WHERE username='"+j+"'" )
         mysql.connection.commit()
         cur.close()
+        results={}
+        return jsonify(results), 200
+
+    if p==11:
+        cur = mysql.connection.cursor()
+        j=argg
+        cur.execute("DELETE FROM users")
+        mysql.connection.commit()
+        cur.close()
+        results={}
         return jsonify(results), 200
   
 
@@ -138,12 +159,7 @@ def readfromdb():
         return jsonify(res),200
 
     
-    if p==11:
-        cur.execute("DELETE FROM users")
-        mysql.connection.commit()
-        cur.close()
-        g={}
-        return jsonify(g), 200
+    
 
     
 

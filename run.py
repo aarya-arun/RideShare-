@@ -317,6 +317,7 @@ def readfromdb():
         if(row==None):
             return "This ride doesn't exist",204
         cur.execute("SELECT userz FROM ride_users where rideid="+j)
+
         res=[]
         for row1 in cur:
             res.append(row1[0])
@@ -331,7 +332,7 @@ def readfromdb():
             "destination": row[3],
             "users": res
         }
-        
+
         return jsonify(resp),200
 
 
