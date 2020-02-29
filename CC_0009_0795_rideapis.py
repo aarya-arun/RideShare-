@@ -217,7 +217,7 @@ def readfromdb():
         row1 = cur.fetchall()
         res=[]
         for row in row1:
-            checkdate=datetime.strptime(row[1], "%m/%d/%Y, %H:%M:%S")
+            #checkdate=datetime.strptime(row[1], "%m/%d/%Y, %H:%M:%S")
             
             resp={
                 "rideId":row[4],
