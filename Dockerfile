@@ -9,7 +9,7 @@ RUN sudo pip3 install --upgrade pip setuptools wheel
 RUN echo Y| sudo apt-get install mysql-server
 RUN echo Y| sudo apt-get install python3.6-dev libmysqlclient-dev
 RUN pip install mysql-connector-python
-RUN pip install flask_mysqldb
+RUN sudo pip2 install flask-mysqldb
 RUN pip3 install mysqlclient
 RUN mkdir /data && mkdir /data/db
 
