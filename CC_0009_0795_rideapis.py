@@ -15,13 +15,13 @@ mysql = MySQL(app)
 
 app.config["DEBUG"] = True
 
-# Create some test data for our catalog in the form of a list of dictionaries.
 
 
-rideidstart=10000
+
 p=0
 argg="LOL"
 argnum=0
+
 
 
 
@@ -33,6 +33,7 @@ def api_addnewride():
     global p
     p=3
     return redirect(flask.url_for('readfromdb'), code=307)
+
 
 
 
@@ -56,6 +57,10 @@ def api_sourceanddest():
     return redirect(flask.url_for('readfromdb'), code=307)
 
 
+
+
+
+
  #LIST ALL DETAILS OF A GIVEN RIDE API=5
 @app.route('/api/v1/rides/<id>', methods=['GET'])
 def api_id(id):
@@ -72,7 +77,7 @@ def api_id(id):
 
 
 
-# JOIN A RIDE, API=6
+#JOIN A RIDE, API=6
 
 @app.route('/api/v1/rides/<rideid>', methods=['POST'])
 def api_joinride(rideid):
@@ -82,6 +87,7 @@ def api_joinride(rideid):
     global argnum
     argnum=rideid
     return redirect(flask.url_for('readfromdb'), code=307)
+
 
 
 
@@ -100,6 +106,10 @@ def api_delride(rideid):
     argg=rideid
     return redirect(flask.url_for('readfromdb'), code=307)
 
+
+
+
+
 # LIST ALL USERS, API=10
 @app.route('/api/v1/users', methods=['GET'])
 def api_listall():
@@ -109,6 +119,17 @@ def api_listall():
     global p
     p=10
     return redirect(flask.url_for('readfromdb'), code=307)
+
+
+
+# CLEAR DB, API=11
+@app.route('/api/v1/db/clear', methods=['POST'])
+def api_cleardb():
+    global p
+    p=11
+    return redirect(flask.url_for('writetodb'), code=307)
+
+
 
 
 
@@ -137,6 +158,7 @@ def writetodb():
         cur.execute("UPDATE rides_id SET ridestart=(%s) WHERE ridestart=(%s)", (str(int(rideidstart[0])+1), rideidstart[0]))
         mysql.connection.commit()
         cur.close()
+        results={}
         return jsonify(results), 201
         
     
@@ -146,6 +168,7 @@ def writetodb():
         cur.execute("INSERT INTO ride_users(rideid,userz) VALUES (%s, %s)",(j,request.json.get('username')))
         mysql.connection.commit()
         cur.close()
+        results={}
         return jsonify(results), 200
         
 
@@ -155,14 +178,18 @@ def writetodb():
         cur.execute("DELETE FROM rides WHERE rideid='"+j+"'" )
         mysql.connection.commit()
         cur.close()
+        results={}
         return jsonify(results), 200
 
     if p==11:
+        cur = mysql.connection.cursor()
+        j=argg
         cur.execute("DELETE FROM rides")
+        cur.execute("UPDATE rides_id set ridestart=9999")
         mysql.connection.commit()
         cur.close()
-        g={}
-        return jsonify(g), 200
+        results={}
+        return jsonify(results), 200
 
 
 
@@ -190,14 +217,14 @@ def readfromdb():
         row1 = cur.fetchall()
         res=[]
         for row in row1:
-            checkdate=datetime.strptime(row[1], "%m/%d/%Y, %H:%M:%S")
-            if  checkdate>=datetime.now(): #row[1]>=datetime.datetime.now().strftime('%d-%b-%Y:%S-%M-%H'):
-                resp={
-                    "rideId":row[4],
-                    "username": row[0],
-                    "timestamp": row[1]
-                }
-                res.append(resp)
+            #checkdate=datetime.strptime(row[1], "%m/%d/%Y, %H:%M:%S")
+            
+            resp={
+                "rideId":row[4],
+                "username": row[0],
+                "timestamp": row[1]
+            }
+            res.append(resp)
         
         return jsonify(res),200
         

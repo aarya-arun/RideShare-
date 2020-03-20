@@ -10,7 +10,7 @@ CREATE TABLE rides(
   
   CREATE TABLE rides_id(
   
-    rideidstart int
+    ridestart int
     
     );
     
