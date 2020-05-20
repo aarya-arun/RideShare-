@@ -1,4 +1,4 @@
-# Assignment 1
+# Assignment 2
 
 In this assignment, two containers access their databases named 'test' to function with the users and rides APIs. 
 
