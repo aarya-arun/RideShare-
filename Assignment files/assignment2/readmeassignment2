@@ -1,0 +1,55 @@
+README assignment 2 
+
+Two different containers are used.
+
+sudo docker-compose down
+
+sudo docker-compose up //to start containers
+
+In 2 separate ssh terminals to the instance, run these:
+
+SSH1: sudo docker exec -it users sudo service mysql start
+	sudo docker exec -it users /bin/bash
+        # mysql -u root
+           mysql> create database test;
+	   mysql>	  use test;
+	  mysql>	  create user 'aarya'@'localhost' identified by 'aarya123'
+          mysql>		  grant all privileges on *.* to 'aarya'@'localhost'
+          mysql>		  CREATE TABLE users(
+  username varchar(30),
+  password varchar(40)
+  
+  );
+      
+
+SSH2: sudo docker exec -it rides sudo service mysql start
+sudo docker exec -it rides /bin/bash
+        # mysql -u root
+           mysql> create database test;
+	   mysql>	  use test;
+	  mysql>	  create user 'aarya'@'localhost' identified by 'aarya123'
+          mysql>		  grant all privileges on *.* to 'aarya'@'localhost'
+          mysql>		 CREATE TABLE rides(
+
+  created_by varchar(30),
+  timestamp1 varchar(40),
+  source1 int,
+  destination1 int,
+  rideid varchar(40)
+  
+  );
+        
+  	 mysql>			CREATE TABLE rides_id(
+  
+    				ridestart int
+    
+    				);
+    
+   
+   	mysql>			CREATE TABLE ride_users(
+        
+    				rideid varchar(30),
+    				userz varchar(30)
+    
+    				);
+         

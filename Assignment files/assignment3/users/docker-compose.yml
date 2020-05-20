@@ -4,21 +4,20 @@ services:
   image: base-image
   build: 
    context: .
-   dockerfile: Dockerfile
 
- orchestrator: 
-  image: orchestrator
+ users: 
+  image: users
   volumes:
    - ./:/home
-  container_name: orchestrator
-  build:
+  container_name: users
+  build: 
    context: .
-   dockerfile: orchestrator_dockerfile
+   dockerfile: user_dockerfile
   ports: 
    - 80:80
   networks: 
    microservice_nets: 
-    ipv4_address: 172.16.238.2
+    ipv4_address: 172.16.238.11
 
 
 networks:

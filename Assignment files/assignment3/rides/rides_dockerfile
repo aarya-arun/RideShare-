@@ -1,0 +1,9 @@
+FROM base-image:latest
+WORKDIR .
+ENV TEAM_NAME=CC_0009_0795
+ENV NAME="RIDES"
+EXPOSE 80
+
+CMD sudo python /home/CC_0009_0795_rides.py
+
+ 

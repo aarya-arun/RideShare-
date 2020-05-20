@@ -1,0 +1,43 @@
+version: '3.3'
+
+services:
+
+ base-image: 
+  image: base-image
+  build: 
+   context: .
+   
+ users: 
+  image: users
+  volumes:
+   - ./:/home
+  container_name: users
+  build: 
+   context: .
+   dockerfile: user_dockerfile
+  ports: 
+   - 8080:8080
+  networks: 
+   microservice_nets: 
+    ipv4_address: 172.16.238.11
+
+ rides: 
+  image: rides
+  volumes:
+   - ./:/home
+  container_name: rides
+  build: 
+   context: .
+   dockerfile: rides_dockerfile
+  ports: 
+   - 8000:8000
+  networks: 
+   microservice_nets: 
+    ipv4_address: 172.16.238.11
+
+networks:
+ vpcbr:
+  ipam:
+   driver: default
+   config:
+    - subnet: 172.27.0.0/16
