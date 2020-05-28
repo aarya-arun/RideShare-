@@ -21,6 +21,8 @@ RUN sudo pip3 install requests
 RUN pip install ipython
 RUN pip3 install kazoo
 RUN pip3 install pika --upgrade
+RUN pip3 install docker
+RUN pip3 install schedule
 RUN sudo apt-get install python3-pika
 
 

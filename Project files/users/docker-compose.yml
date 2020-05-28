@@ -1,0 +1,29 @@
+version: '3.3'
+services:  
+ base-image: 
+  image: base-image
+  build: 
+   context: .
+   dockerfile: Dockerfile
+
+ users: 
+  image: users
+  volumes:
+   - ./:/home
+  container_name: users
+  build:
+   context: .
+   dockerfile: user_dockerfile
+  ports: 
+   - 80:80
+  networks: 
+   microservice_nets: 
+    ipv4_address: 172.16.238.10
+
+
+networks:
+ microservice_nets:
+  ipam:
+   driver: default
+   config:
+    - subnet: "172.16.238.0/24"

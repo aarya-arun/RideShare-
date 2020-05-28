@@ -1,3 +1,4 @@
+
 import flask
 from flask import Flask, render_template, request, redirect, jsonify
 from flask_mysqldb import MySQL
@@ -23,6 +24,9 @@ p=0
 argg="LOL"
 argnum=0
 
+@app.route('/ping', methods=['GET'])
+def pingpang():
+	return 'pong!'
 
 # ADD A NEW USER, API=1
 @app.route('/api/v1/users', methods=['PUT'])
@@ -44,15 +48,30 @@ def api_addnewuser():
     results={
         "message":"SELECT *  FROM users where username='"+request.json.get('username')+"'"
     }
-    harry_potter = requests.post('http://3.94.149.243/api/v1/db/read', data = results, verify=True)
-    ginny=harry_potter.json()
-   
-    if(ginny!=None):
-        return "This user already exists!",400
+    harry_potter = requests.post('http://50.19.83.179/api/v1/db/read',json = results)
+    
+    ginny = harry_potter.text
+
+    ginny = ginny.strip("[")
+    ginny = ginny.strip("]")
+    ginny = ginny.split(",")
+
+    seamus =[]
+
+    for name in ginny:
+        name = name.strip()
+        name = name.strip("(")
+        name = name.strip("'")
+        seamus.append(name)
+
 
 
     username = request.json.get('username')
     password = request.json.get('password')
+
+    if(seamus[0]==username):
+        return "This user already exists!",400
+
 
     results={
 
@@ -61,14 +80,13 @@ def api_addnewuser():
 
     }
     
-    harry_potter = requests.post('http://3.94.149.243/api/v1/db/write', data = results, verify=True)
+    harry_potter = requests.post('http://50.19.83.179/api/v1/db/write',json = results)
 
     results1={}
     
 
     return jsonify(results1), 201
     
-
 
 
 
@@ -91,18 +109,33 @@ def api_deluser(usn):
     
     j=argg
 
-    requests={
+    results={
 
         "message":"SELECT *  FROM users where username='"+j+"'"
     }
+    harry_potter = requests.post('http://50.19.83.179/api/v1/db/read',json = results)
+    
+    ginny = harry_potter.text
 
-    harry_potter = requests.post('http://3.94.149.243/api/v1/db/read', data = results)
-    ginny=harry_potter.json()
-  
-    if(ginny==None):
-        return "This user doesn't exit. Can't delete.",400
+    ginny = ginny.strip("[")
+    ginny = ginny.strip("]")
+    ginny = ginny.split(",")
+
+    seamus =[]
+
+    for name in ginny:
+        name = name.strip()
+        name = name.strip("(")
+        name = name.strip("'")
+        seamus.append(name)
 
 
+
+    username = request.json.get('username')
+    password = request.json.get('password')
+
+    if(seamus[0]!=username):
+        return "This user doesn't exist!",400
     
     j=argg
 
@@ -110,9 +143,9 @@ def api_deluser(usn):
 
         "message":"DELETE FROM users WHERE username='"+j+"'" 
     }
-    harry_potter = requests.post('http://3.94.149.243/api/v1/db/write', data = results)
+    harry_potter = requests.post('http://50.19.83.179/api/v1/db/write',json = results)
     
-    return jsonify(results), 200
+    return jsonify({}), 200
         
     
 
@@ -131,16 +164,29 @@ def api_listall():
 
         'message':"SELECT username FROM users"
     }
+    harry_potter = requests.post('http://50.19.83.179/api/v1/db/read', json = results)
+    ginny = harry_potter.text
+    if ginny == "[]":
+        return jsonify([])
+    ginny = ginny.strip("[")
+    ginny = ginny.strip("]")
+    ginny = ginny.strip()
+    cedric = []
+    ginny = ginny.split(",")
+    #return jsonify(ginny)
+    for name in ginny:
+        if name == ')':
+            continue
+        else:
+            name = name.strip()
+            name = name.strip("(")
+            name = name.strip("'")
+            name = name.strip(",")
+            cedric.append(name)
     
-    harry_potter = requests.post('http://3.94.149.243/api/v1/db/read', json = results)
-    
-    print(harry_potter)
-
-    if(harry_potter==None):return 204
-    #for row1 in ginny:
-    #    res.append(row1[0])
-
-    return harry_potter,200
+    if len(cedric) == 0:
+        return 204
+    return jsonify(cedric), 200
 
 
 # CLEAR DB, API=11
@@ -155,7 +201,7 @@ def api_cleardb():
 
         "message":"DELETE FROM users"
     }
-    harry_potter = requests.post('http://3.94.149.243/api/v1/db/write', data = results)
+    harry_potter = requests.post('http://50.19.83.179/api/v1/db/read', json = results)
 
     results1={}
     

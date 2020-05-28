@@ -21,4 +21,11 @@ sudo docker exec -it rides /bin/bash
 On the DBAAS instance
 
 sudo docker-compose up
+
+
+*** LOAD BALANCER:  LBW-171399600.us-east-1.elb.amazonaws.com
          
+
+master.py -master
+producer.py - orchestrator
+consumer.py - slave
